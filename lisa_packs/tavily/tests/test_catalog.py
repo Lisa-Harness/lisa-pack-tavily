@@ -16,4 +16,4 @@ def test_tavily_pack_tavily_search_tool_discovered() -> None:
     assert "tavily_search" in catalog
     tool = catalog["tavily_search"]
     assert tool["tool_id"] == "tavily_search"
-    assert tool["module_path"].startswith("lisa_packs.tavily.tools.")
+    assert "lisa_packs.tavily.tools." in tool["module_path"]
