@@ -1,4 +1,4 @@
-"""Tavily Search tool provider for the tavily_search contract.
+"""Tavily Search tool provider for the web_search contract.
 
 Uses the Tavily REST API (POST https://api.tavily.com/search) with bearer
 token authentication.  The response ``results`` array contains objects with
@@ -27,7 +27,7 @@ _SEARCH_TIMEOUT_SECONDS: float = 15.0
 
 
 class Parameters(BaseModel):
-    """Structured input parameters for the tavily_search tool."""
+    """Structured input parameters for the web_search tool."""
 
     query: str = Field(..., description="The search query to execute.")
     count: int = Field(default=5, ge=1, le=20, description="Max results per query.")
@@ -140,7 +140,7 @@ def _parse_response(query: str, data: dict) -> WebSearchResponse:
 
 
 async def execute(ctx: ToolExecutionContext) -> ToolResult:
-    """Execute the tavily_search tool — called by the tool registry dispatcher."""
+    """Execute the web_search tool — called by the tool registry dispatcher."""
     from pydantic import ValidationError
 
     try:
@@ -152,13 +152,13 @@ async def execute(ctx: ToolExecutionContext) -> ToolResult:
         query = (ctx.query or "").strip()
     if not query:
         return ToolResult(
-            tool_id=ctx.tool_id or "tavily_search",
-            error="tavily_search requires a query.",
+            tool_id=ctx.tool_id or "web_search",
+            error="web_search requires a query.",
         )
 
     if not is_configured():
         return ToolResult(
-            tool_id=ctx.tool_id or "tavily_search",
+            tool_id=ctx.tool_id or "web_search",
             error="Tavily search is not configured. Set TAVILY_SEARCH_API_KEY to enable it.",
         )
 
@@ -166,12 +166,12 @@ async def execute(ctx: ToolExecutionContext) -> ToolResult:
         response = await search(query)
     except Exception as exc:  # noqa: BLE001  # broad-except is intentional at tool boundary
         return ToolResult(
-            tool_id=ctx.tool_id or "tavily_search",
+            tool_id=ctx.tool_id or "web_search",
             error=f"Tavily search failed: {type(exc).__name__}: {exc}",
         )
 
     return ToolResult(
-        tool_id=ctx.tool_id or "tavily_search",
+        tool_id=ctx.tool_id or "web_search",
         output_text=render_search_results(response),
         output_json={"response": response.model_dump(mode="json")},
     )

@@ -1,4 +1,4 @@
-"""Tests for the Tavily provider tavily_search tool contract."""
+"""Tests for the Tavily provider web_search tool contract."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ async def test_tavily_search_returns_friendly_error_when_unconfigured(
     monkeypatch.setattr(ws, "is_configured", lambda: False)
 
     ctx = ToolExecutionContext(
-        tool_id="tavily_search",
+        tool_id="web_search",
         parameters={"query": "cloud cost"},
     )
     result = await ws.execute(ctx)
@@ -30,10 +30,10 @@ async def test_tavily_search_returns_friendly_error_when_unconfigured(
 async def test_tavily_search_returns_error_on_empty_query() -> None:
     from lisa_packs.tavily.tools.tavily_search import tavily_search as ws
 
-    ctx = ToolExecutionContext(tool_id="tavily_search", parameters={})
+    ctx = ToolExecutionContext(tool_id="web_search", parameters={})
     result = await ws.execute(ctx)
 
-    assert result.error == "tavily_search requires a query."
+    assert result.error == "web_search requires a query."
 
 
 @pytest.mark.asyncio
@@ -61,7 +61,7 @@ async def test_tavily_search_returns_grounded_payload_when_configured(
     monkeypatch.setattr(ws, "search", _fake_search)
 
     ctx = ToolExecutionContext(
-        tool_id="tavily_search",
+        tool_id="web_search",
         parameters={"query": "cloud cost"},
     )
     result = await ws.execute(ctx)

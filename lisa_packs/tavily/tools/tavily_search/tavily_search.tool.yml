@@ -1,4 +1,4 @@
-tool_id: tavily_search
+tool_id: web_search
 tool_provider_id: lisa-pack-tavily
 description: "Search the web using Tavily Search and return grounded results."
 exportable: true
