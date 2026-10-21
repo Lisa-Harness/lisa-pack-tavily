@@ -21,8 +21,7 @@ async def test_tavily_search_returns_friendly_error_when_unconfigured(
     result = await ws.execute(ctx)
 
     assert (
-        result.error
-        == "Tavily search is not configured. Set TAVILY_SEARCH_API_KEY to enable it."
+        result.error == "Tavily search is not configured. Set TAVILY_SEARCH_API_KEY to enable it."
     )
 
 
@@ -68,7 +67,4 @@ async def test_tavily_search_returns_grounded_payload_when_configured(
 
     assert result.error == ""
     assert result.output_json["response"]["query"] == "cloud cost"
-    assert (
-        result.output_json["response"]["results"][0]["url"]
-        == "https://example.com/guardrails"
-    )
+    assert result.output_json["response"]["results"][0]["url"] == "https://example.com/guardrails"
