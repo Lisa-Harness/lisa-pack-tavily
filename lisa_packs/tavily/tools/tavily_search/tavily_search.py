@@ -10,12 +10,17 @@ from __future__ import annotations
 
 import os
 from datetime import UTC, datetime
+from typing import Any
 
 import httpx
 from kernel.models import ToolExecutionContext, ToolResult
 from pydantic import BaseModel, Field
 
 from lisa_packs.tavily.models import WebSearchResponse, WebSearchResult
+
+# A provider JSON payload: string keys with arbitrary values.
+_JsonPayload = dict[str, Any]
+
 
 __all__ = ["Parameters", "execute", "is_configured", "search"]
 
@@ -38,10 +43,7 @@ def _get_api_key() -> str:
 
 
 def _get_endpoint() -> str:
-    return (
-        os.environ.get("TAVILY_SEARCH_ENDPOINT", _DEFAULT_ENDPOINT).strip()
-        or _DEFAULT_ENDPOINT
-    )
+    return os.environ.get("TAVILY_SEARCH_ENDPOINT", _DEFAULT_ENDPOINT).strip() or _DEFAULT_ENDPOINT
 
 
 def _get_max_results() -> int:
@@ -62,9 +64,7 @@ def _get_search_depth() -> str:
 
 
 def _get_topic() -> str:
-    return (
-        os.environ.get("TAVILY_SEARCH_TOPIC", _DEFAULT_TOPIC).strip() or _DEFAULT_TOPIC
-    )
+    return os.environ.get("TAVILY_SEARCH_TOPIC", _DEFAULT_TOPIC).strip() or _DEFAULT_TOPIC
 
 
 def is_configured() -> bool:
@@ -72,9 +72,7 @@ def is_configured() -> bool:
     return bool(_get_api_key())
 
 
-async def search(
-    query: str, client: httpx.AsyncClient | None = None
-) -> WebSearchResponse:
+async def search(query: str, client: httpx.AsyncClient | None = None) -> WebSearchResponse:
     """Execute one Tavily Search query and return structured results.
 
     Raises:
@@ -115,8 +113,8 @@ async def search(
         return await _do_request(managed_client)
 
 
-def _parse_response(query: str, data: dict) -> WebSearchResponse:
-    raw_values: list[dict] = data.get("results", [])
+def _parse_response(query: str, data: _JsonPayload) -> WebSearchResponse:
+    raw_values: list[_JsonPayload] = data.get("results", [])
 
     results: list[WebSearchResult] = []
     for item in raw_values:
@@ -164,7 +162,7 @@ async def execute(ctx: ToolExecutionContext) -> ToolResult:
 
     try:
         response = await search(query)
-    except Exception as exc:  # noqa: BLE001  # broad-except is intentional at tool boundary
+    except Exception as exc:  # pylint: disable=broad-except  # intentional at tool boundary
         return ToolResult(
             tool_id=ctx.tool_id or "web_search",
             error=f"Tavily search failed: {type(exc).__name__}: {exc}",
